@@ -73,7 +73,9 @@ def plotKEandPEandTotal(filepathKE, filepathPE):
     dfForPlot.plot(x='time', y=['kinetic energy','potential energy', 'total energy'])
     
 def plotLJpotential(ensemble, ptCount=200):
-    x = np.linspace(ensemble.sigma, ensemble.cutoff, ptCount)
+    #x = np.linspace(ensemble.sigma, ensemble.cutoff, ptCount)
+    xlowerlim = ensemble.sigma - 0.1
+    x = np.linspace(xlowerlim, ensemble.cutoff, ptCount)
     y = []
     for xVal in x:
         sigOverR6 = np.power(ensemble.sigma/xVal, 6)
@@ -82,7 +84,7 @@ def plotLJpotential(ensemble, ptCount=200):
     df = pd.DataFrame()
     df['distance'] = x
     df['potential energy'] = y
-    df.plot(x = 'distance', y = 'potential energy')
+    df.plot(x = 'distance', y = 'potential energy', title = 'Lennard-Jones potential', ylabel = 'potential energy')
     
 def writeXYZ(ensemble, filename, atomName='Ar'):
     f = open(filename, 'w')
