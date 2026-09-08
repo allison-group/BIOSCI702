@@ -74,7 +74,7 @@ def plotKEandPEandTotal(filepathKE, filepathPE):
     
 def plotLJpotential(ensemble, ptCount=200):
     #x = np.linspace(ensemble.sigma, ensemble.cutoff, ptCount)
-    xlowerlim = ensemble.sigma - 0.1
+    xlowerlim = ensemble.sigma - 0.5
     x = np.linspace(xlowerlim, ensemble.cutoff, ptCount)
     y = []
     for xVal in x:
