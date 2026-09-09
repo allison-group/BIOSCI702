@@ -76,7 +76,6 @@ def plotLJpotential(ensemble, ptCount=200):
     #x = np.linspace(ensemble.sigma, ensemble.cutoff, ptCount)
     xlowerlim = ensemble.sigma - 0.05
     x = np.linspace(xlowerlim, ensemble.cutoff, ptCount)
-    #print(x[0])
     y = []
     for xVal in x:
         sigOverR6 = np.power(ensemble.sigma/xVal, 6)
@@ -84,9 +83,39 @@ def plotLJpotential(ensemble, ptCount=200):
         y.append( 4 * ensemble.epsilon * (sigOverR12 - sigOverR6))
     df = pd.DataFrame()
     df['distance'] = x
-    df['potential energy'] = y
-    df.plot(x = 'distance', y = 'potential energy', title = 'Lennard-Jones potential', ylabel = 'potential energy')
+    df['LJ potential energy'] = y
+    df.plot(x = 'distance', y = 'LJ potential energy', title = 'Lennard-Jones potential', ylabel = 'potential energy')
     #plt.show()
+
+def plot2LJpotentials(ensemble1, ensemble2, ptCount=200):
+    # first handle ensemble 1
+    xlowerlim1 = ensemble1.sigma - 0.05
+    x1 = np.linspace(xlowerlim1, ensemble1.cutoff, ptCount)
+    y1 = []
+    for xVal in x1:
+        sigOverR6 = np.power(ensemble1.sigma/xVal, 6)
+        sigOverR12 = sigOverR6*sigOverR6        
+        y1.append( 4 * ensemble1.epsilon * (sigOverR12 - sigOverR6))
+    df1 = pd.DataFrame()
+    df1['distance'] = x1
+    df1['LJ1'] = y1
+    # then handle ensemble 2
+    xlowerlim2 = ensemble2.sigma - 0.05
+    x2 = np.linspace(xlowerlim2, ensemble2.cutoff, ptCount)
+    y2 = []
+    for xVal in x2:
+        sigOverR6 = np.power(ensemble2.sigma/xVal, 6)
+        sigOverR12 = sigOverR6*sigOverR6        
+        y2.append( 4 * ensemble2.epsilon * (sigOverR12 - sigOverR6))
+    df2 = pd.DataFrame()
+    df2['distance'] = x2
+    df2['LJ2'] = y2
+    # now combine them
+    df = pd.concat([df1.LJ1, df2.LJ2], axis=1)
+    dfForPlot = pd.concat([df1.distance, df], axis=1)
+    dfForPlot.columns = ['distance','LJ1','LJ2']
+    dfForPlot.plot(x='distance', y=['LJ1','LJ2'], title='Lennard-Jones potentials', ylabel = 'potential energy')
+    plt.show()
 
 def writeXYZ(ensemble, filename, atomName='Ar'):
     f = open(filename, 'w')
