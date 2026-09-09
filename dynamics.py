@@ -68,11 +68,11 @@ def RunDynamics(ensemble, nSteps = 1000, dt=.005, saveFreq=5):
         if (t % 100 == 0): print("Simulation step",t,"complete")
     
     with open("kineticEnergy.csv", "w") as KEfile:
-        KEfile.write("t,KE\n") 
+        KEfile.write("time,kineticEnergy\n") 
         for idx,k in enumerate(KE):
             KEfile.write(str(idx * saveFreq) + ", " + str(k)+"\n")
     with open("potentialEnergy.csv", "w") as PEfile:
-        PEfile.write("t,PE\n")
+        PEfile.write("time,potentialEnergy\n")
         for idx,p in enumerate(PE):
             PEfile.write(str(idx * saveFreq) + ", " + str(p)+"\n")
     
