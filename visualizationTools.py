@@ -76,6 +76,7 @@ def plotLJpotential(ensemble, ptCount=200):
     #x = np.linspace(ensemble.sigma, ensemble.cutoff, ptCount)
     xlowerlim = ensemble.sigma - 0.5
     x = np.linspace(xlowerlim, ensemble.cutoff, ptCount)
+    print(x[0])
     y = []
     for xVal in x:
         sigOverR6 = np.power(ensemble.sigma/xVal, 6)
