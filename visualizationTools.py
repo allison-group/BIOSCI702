@@ -105,10 +105,17 @@ def plotLJpotential(ensemble, ptCount=200):
     df.plot(x = 'distance', y = 'LJ potential energy', title = 'Lennard-Jones potential', ylabel = 'potential energy')
     #plt.show()
 
-def plot2LJpotentials(ensemble1, ensemble2, ptCount=200):
+def plot2LJpotentials(ensemble1, ensemble2, xmin, xmax, ymax, ptCount=200):
+    # find lowest epsilon, use to set ymin
+    ymin = ensemble1.epsilon
+    if (ensemble2.epsilon > ensemble1.epsilon):
+      ymin = ensemble2.epsilon
+    ymin = 0-ymin-0.2
+    print(ymin)
     # first handle ensemble 1
-    xlowerlim1 = ensemble1.sigma - 0.05
-    x1 = np.linspace(xlowerlim1, ensemble1.cutoff, ptCount)
+    #xlowerlim1 = ensemble1.sigma - 0.05
+    #x1 = np.linspace(xlowerlim1, ensemble1.cutoff, ptCount)
+    x1 = np.linspace(xmin, xmax, ptCount)
     y1 = []
     for xVal in x1:
         sigOverR6 = np.power(ensemble1.sigma/xVal, 6)
@@ -118,8 +125,9 @@ def plot2LJpotentials(ensemble1, ensemble2, ptCount=200):
     df1['distance'] = x1
     df1['LJ1'] = y1
     # then handle ensemble 2
-    xlowerlim2 = ensemble2.sigma - 0.05
-    x2 = np.linspace(xlowerlim2, ensemble2.cutoff, ptCount)
+    #xlowerlim2 = ensemble2.sigma - 0.05
+    #x2 = np.linspace(xlowerlim2, ensemble2.cutoff, ptCount)
+    x2 = np.linspace(xmin, xmax, ptCount)
     y2 = []
     for xVal in x2:
         sigOverR6 = np.power(ensemble2.sigma/xVal, 6)
@@ -133,6 +141,7 @@ def plot2LJpotentials(ensemble1, ensemble2, ptCount=200):
     dfForPlot = pd.concat([df1.distance, df], axis=1)
     dfForPlot.columns = ['distance','LJ1','LJ2']
     dfForPlot.plot(x='distance', y=['LJ1','LJ2'], title='Lennard-Jones potentials', ylabel = 'potential energy')
+    plt.ylim(ymin,ymax)
     plt.show()
 
 def writeXYZ(ensemble, filename, atomName='Ar'):
