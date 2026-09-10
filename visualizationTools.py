@@ -27,34 +27,24 @@ def makeTrajMovie2D(traj, sideLen, filename = 'LJtraj.gif'):
     ani.save(filename, writer=writergif)
     
 def makeTrajMovie2DColored(traj, sideLen, nMol, filename = 'LJtraj.gif'):
-    #print(sideLen,nMol,len(traj))
+    # set up figure and axes
     fig, ax = plt.subplots(figsize=(5,5),dpi=120)
-    size = 10
-    #colors = np.random.rand(nMol)
-    colors = np.linspace(0,nMol,nMol)
-    ax.scatter(traj[0][:,0],traj[0][:,1],s=size,alpha=0.5,c=colors)
-    ax.set_xlim(-0.5,sideLen+.5)
-    ax.set_ylim(-0.5,sideLen+.5)
-    #graph, = plt.plot([], [], 'o')
-    #scat = ax.scatter(traj[0][:,0],traj[0][:,1],c=colors,cmap='rainbow',s=sphere)
-    #print(traj[0][:,0],traj[0][:,1])
-    def animate(i):
-        ax.clear()
-        x = traj[i][:,0]
-        y = traj[i][:,1]
-        #print(x,y)
-        #graph.set_data(x, y, s=sphere, c=colors)
-        #graph.set_data(x, y, c=colors)
-        #scat.set_offsets((x,y))
-        ax.scatter(x,y,s=size,alpha=0.5,c=colors)
-        ax.set_xlim(-0.5,sideLen+.5)
-        ax.set_ylim(-0.5,sideLen+.5)
-        return(fig, ax)
+    ax.set(xlim=(-0.5,sideLen+0.5), ylim=(-0.5,sideLen+0.5))
 
-    ani = FuncAnimation(fig, animate, frames=len(traj), blit=True)
+    # particle size and colour
+    size = 500
+    colors = np.random.rand(nMol)
+    #colors = np.linspace(0,nMol,nMol)
+
+    # initialise plot
+    scat = ax.scatter(traj[0][:,0],traj[0][:,1],marker='o',c=colors,s=size)
+
+    def animate(i):
+        scat.set_offsets(traj[i])
+
+    ani = FuncAnimation(fig, animate, frames=len(traj))
     writergif = PillowWriter(fps=30)
     ani.save(filename, writer=writergif)
-    plt.show()
 
 def plotKEtotals(filepath):
     KEdf = pd.read_csv(filepath, header=0)
