@@ -101,7 +101,7 @@ def plot2LJpotentials(ensemble1, ensemble2, xmin, xmax, ymax, ptCount=200):
     if (ensemble2.epsilon > ensemble1.epsilon):
       ymin = ensemble2.epsilon
     ymin = 0-ymin-0.2
-    print(ymin)
+    #print(ymin)
     # first handle ensemble 1
     #xlowerlim1 = ensemble1.sigma - 0.05
     #x1 = np.linspace(xlowerlim1, ensemble1.cutoff, ptCount)
