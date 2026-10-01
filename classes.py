@@ -26,6 +26,8 @@ class Ensemble():
         self.dim = dim  # number of dimensions
         self.sigma = sigma     # Lennard-Jones parameter
         self.epsilon = epsilon # Lennard-Jones parameter
+        self.qi = qi # charge on particle i (for 2-body Coulomb interactions)
+        self.qj = qj # charge on particle j (for 2-body Coulomb interactions)
         self.nMol = nMol # number of molecules
         self.cutoff = self.sigma * cutFactor # interaction distance cutoff
         self.periodic = periodic # use periodic boundary conditions 
@@ -100,7 +102,22 @@ class Ensemble():
         LJforce = 48 * self.epsilon * (sig12/r13 - .5 * sig6/r7) 
         m1.a -= LJforce * (diff/r) / m1.m # r is used to normalize the diff vector
         m2.a += LJforce * (diff/r) / m2.m # r is used to normalize the diff vector
-              
+
+    # my function for a bond force for a pair of atoms
+    #def AddBondForce(self, mol1, mol2):
+    #    # get all the info for the two atoms
+    #    m1, m2 = self.moList[mol1], self.moList[mol2]
+    #    # difference in their position (a vector)
+    #    diff = m2.r - m1.r
+    #    # correct for PBC
+    #    if self.periodic:
+    #        diff = PeriodicVectorCorrection(diff, self.sideLen)
+    #    # calculate distance between the atoms sqrt(x^2 + y^2 + z^2)
+    #    r = np.sqrt(sum(diff**2))
+    #    BondForce = Kbond * (r - self.r0)
+    #    m1.a -= BondForce * (diff/r) / m1.m # r is used to normalise the diff vector
+    #    m2.a += BondForce * (diff/r) / m2.m # r is used to normalise the diff vector
+
     def UpdateAccelerationLJ(self):
         # Accelerations due to Lennard-Jones interactions 
         rCutSq = self.cutoff * self.cutoff 
@@ -117,8 +134,9 @@ class Ensemble():
                 if self.periodic:
                     diff = PeriodicVectorCorrection(diff, self.sideLen)
                 distSq = sum(diff**2)
+                # if atoms are within cutoff, calculate and add LJ force
                 if( (distSq < rCutSq) and (i < j)):
-                    self.AddLJpotForce(i, j) 
+                    self.AddLJpotForce(i, j)
                     virSum += np.dot(diff, self.moList[i].a)
         self.temperature = vv/(self.nMol * self.dim)
         V, T, D, rho = self.volume, self.temperature, self.dim, self.density 
@@ -134,7 +152,10 @@ class Ensemble():
         for i in range(self.nMol):
             vv += np.dot(self.moList[i].v, self.moList[i].v) * masses[i]
         self.temperature = vv/(self.nMol * self.dim)
-    
+   
+    #def UpdateAccelerationBonded(self):
+        
+
     def onePairLJenergy(self, mol1, mol2): 
         # returns Lennard-Jones potential energy between one pair of molecules 
         m1, m2 = self.moList[mol1], self.moList[mol2] 

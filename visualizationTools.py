@@ -95,6 +95,20 @@ def plotLJpotential(ensemble, ptCount=200):
     df.plot(x = 'distance', y = 'LJ potential energy', title = 'Lennard-Jones potential', ylabel = 'potential energy')
     #plt.show()
 
+def plotCoulombpotential(ensemble, xmin, xmax, ymin, ymax, ptCount=200):
+    x = np.linspace(xmin,xmax,ptCount)
+    y = []
+    numerator = ensemble.qi * ensemble.qj
+    denominator = 4 * math.pi # assume e0 and e1 are 1 for simplicity
+    for xVal in x:
+        denominator = denominator * xVal
+        Ec = numerator / denominator
+        y.append(Ec)
+    df = pd.DataFrame()
+    df['distance'] = x
+    df['Coulomb potential energy'] = y
+    df.plot(x = 'distance', y = 'Coulomb potential energy', title = 'Coulomb potential', ylabel = 'Coulomb potential energy')
+
 def plot2LJpotentials(ensemble1, ensemble2, xmin, xmax, ymax, ptCount=200):
     # find lowest epsilon, use to set ymin
     ymin = ensemble1.epsilon
