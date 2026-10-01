@@ -100,15 +100,16 @@ def plotCoulombpotential(ensemble, xmin, xmax, ptCount=200):
     x = np.linspace(xmin,xmax,ptCount)
     y = []
     numerator = ensemble.qi * ensemble.qj
-    denominator = 4. * math.pi # was assuming e0=e1=1 for simplicity but that gives crazy high energies
+    denominator = 4. * math.pi # assume e0=e1=1 for simplicity
     for xVal in x:
         Ec = numerator / (denominator * xVal)
+        Ec = Ec * 100 # scale to make more like LJ value
         y.append(Ec)
     df = pd.DataFrame()
     df['distance'] = x
     df['Coulomb potential energy'] = y
     df.plot(x = 'distance', y = 'Coulomb potential energy', title = 'Coulomb potential', ylabel = 'Coulomb potential energy')
-    #plt.show()
+    plt.show()
 
 def plot2LJpotentials(ensemble1, ensemble2, xmin, xmax, ymax, ptCount=200):
     # find lowest epsilon, use to set ymin
@@ -148,6 +149,36 @@ def plot2LJpotentials(ensemble1, ensemble2, xmin, xmax, ymax, ptCount=200):
     dfForPlot.plot(x='distance', y=['LJ1','LJ2'], title='Lennard-Jones potentials', ylabel = 'potential energy')
     plt.ylim(ymin,ymax)
     plt.show()
+
+def plotLJCoulomb(ensemble, xmin, xmax, ptCount=200):
+    x = np.linspace(xmin, xmax, ptCount)
+    y1 = []
+    y2 = []
+    # first calculate LJ
+    for xVal in x:
+        sigOverR6 = np.power(ensemble.sigma/xVal, 6)
+        sigOverR12 = sigOverR6*sigOverR6
+        y1.append(4 * ensemble.epsilon * (sigOverR12 - sigOverR6))
+    df1 = pd.DataFrame()
+    df1['distance'] = x
+    df1['LJ'] = y1
+    # now calculate Coulomb
+    numerator = ensemble.qi * ensemble.qj
+    denominator = 4. * math.pi # assume e0=e1=1 for simplicity
+    for xVal in x:
+        Ec = numerator / (denominator * xVal)
+        Ec = Ec * np.power(10.,2) # adjust cos otherwise Coulomb is tiny cf LJ
+        y2.append(Ec)
+    df2 = pd.DataFrame()
+    df2['distance'] = x
+    df2['Coulomb'] = y2
+    # now combine them
+    df = pd.concat([df1.LJ, df2.Coulomb], axis=1)
+    dfForPlot = pd.concat([df1.distance, df, df.sum(axis=1)], axis=1)
+    dfForPlot.columns = ['distance', 'LJ', 'Coulomb', 'LJ+Coulomb']
+    dfForPlot.plot(x='distance', y=['LJ','Coulomb','LJ+Coulomb'], ylabel = 'potential energy')
+    plt.show()
+        
 
 def writeXYZ(ensemble, filename, atomName='Ar'):
     f = open(filename, 'w')
