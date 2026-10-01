@@ -100,7 +100,7 @@ def plotCoulombpotential(ensemble, xmin, xmax, ymin, ymax, ptCount=200):
     x = np.linspace(xmin,xmax,ptCount)
     y = []
     numerator = ensemble.qi * ensemble.qj
-    denominator = 4 * math.pi # assume e0 and e1 are 1 for simplicity
+    denominator = 4 * math.pi * 10^{-12} # was assuming e0=e1=1 for simplicity but that gives crazy high energies
     for xVal in x:
         denominator = denominator * xVal
         Ec = numerator / denominator
