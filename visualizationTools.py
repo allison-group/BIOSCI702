@@ -11,8 +11,7 @@ import matplotlib.pyplot as plt
 import pandas as pd 
 import numpy as np
 from matplotlib.animation import FuncAnimation, PillowWriter
-import math as math
-
+    
 def makeTrajMovie2D(traj, sideLen, filename = 'LJtraj.gif'):
     fig = plt.figure(figsize=(5,5))
     plt.xlim(0 - .5, sideLen+.5)
@@ -27,64 +26,38 @@ def makeTrajMovie2D(traj, sideLen, filename = 'LJtraj.gif'):
     writergif = PillowWriter(fps=30) 
     ani.save(filename, writer=writergif)
     
-def makeTrajMovie2DColored(traj, sideLen, nMol, filename = 'LJtraj.gif'):
-    # set up figure and axes
-    fig, ax = plt.subplots(figsize=(5,5),dpi=120)
-    ax.set(xlim=(-0.5,sideLen+0.5), ylim=(-0.5,sideLen+0.5))
-
-    # particle size and colour
-    size = 500
-    colors = np.random.rand(nMol)
-    #colors = np.linspace(0,nMol,nMol)
-
-    # initialise plot
-    scat = ax.scatter(traj[0][:,0],traj[0][:,1],marker='o',c=colors,s=size)
-
-    def animate(i):
-        scat.set_offsets(traj[i])
-
-    ani = FuncAnimation(fig, animate, frames=len(traj))
-    writergif = PillowWriter(fps=30)
-    ani.save(filename, writer=writergif)
-
 def plotKEtotals(filepath):
     KEdf = pd.read_csv(filepath, header=0)
-    KEdf.plot(x='time', y='kineticEnergy', ylabel='Kinetic energy')
+    KEdf.plot(x='t', y='KE')
     
 def plotPEtotals(filepath):
     PEdf = pd.read_csv(filepath, header=0)
-    PEdf.plot(x='time', y='potentialEnergy', ylabel='Potential energy')
+    PEdf.plot(x='t', y='PE')
     
 def plotKEandPE(filepathKE, filepathPE):
     KEdf = pd.read_csv(filepathKE, header=0)
     PEdf = pd.read_csv(filepathPE, header=0)
-    df = pd.concat([KEdf, PEdf.potentialEnergy], axis=1)
-    df.columns = ['time','kinetic energy','potential energy']
-    df.plot(x='time', y=['kinetic energy','potential energy'], title='Energy', ylabel='energy')
-    plt.show()
-
+    df = pd.concat([KEdf, PEdf.PE], axis=1)
+    df.plot(x='t', y=['KE','PE'])
+    
 def plotTotalEnergy(filepathKE, filepathPE):
     KEdf = pd.read_csv(filepathKE, header=0)
     PEdf = pd.read_csv(filepathPE, header=0)
-    df = pd.concat([KEdf.kineticEnergy, PEdf.potentialEnergy], axis=1)
-    dfForPlot = pd.concat([KEdf.time, df.sum(axis=1)], axis=1)
-    dfForPlot.columns = ['time', 'total energy']
-    dfForPlot.plot(x='time', y='total energy', title='Total Energy', ylabel='energy')
-    plt.show()
-
+    df = pd.concat([KEdf.KE, PEdf.PE], axis=1)
+    dfForPlot = pd.concat([KEdf.t, df.sum(axis=1)], axis=1)
+    dfForPlot.columns = ['t', 'totEnergy']
+    dfForPlot.plot(x='t', y='totEnergy')
+    
 def plotKEandPEandTotal(filepathKE, filepathPE): 
     KEdf = pd.read_csv(filepathKE, header=0)
     PEdf = pd.read_csv(filepathPE, header=0)
-    df = pd.concat([KEdf.kineticEnergy, PEdf.potentialEnergy], axis=1)
-    dfForPlot = pd.concat([KEdf.time, df, df.sum(axis=1)], axis=1)
-    dfForPlot.columns = ['time', 'kinetic energy', 'potential energy', 'total energy']
-    dfForPlot.plot(x='time', y=['kinetic energy','potential energy', 'total energy'], title='Energy', ylabel='energy')
-    #plt.show()
-
+    df = pd.concat([KEdf.KE, PEdf.PE], axis=1)
+    dfForPlot = pd.concat([KEdf.t, df, df.sum(axis=1)], axis=1)
+    dfForPlot.columns = ['t', 'KE', 'PE', 'totEnergy']
+    dfForPlot.plot(x='t', y=['KE','PE', 'totEnergy'])
+    
 def plotLJpotential(ensemble, ptCount=200):
-    #x = np.linspace(ensemble.sigma, ensemble.cutoff, ptCount)
-    xlowerlim = ensemble.sigma - 0.05
-    x = np.linspace(xlowerlim, ensemble.cutoff, ptCount)
+    x = np.linspace(ensemble.sigma, ensemble.cutoff, ptCount)
     y = []
     for xVal in x:
         sigOverR6 = np.power(ensemble.sigma/xVal, 6)
@@ -92,94 +65,9 @@ def plotLJpotential(ensemble, ptCount=200):
         y.append( 4 * ensemble.epsilon * (sigOverR12 - sigOverR6))
     df = pd.DataFrame()
     df['distance'] = x
-    df['LJ potential energy'] = y
-    df.plot(x = 'distance', y = 'LJ potential energy', title = 'Lennard-Jones potential', ylabel = 'potential energy')
-    #plt.show()
-
-def plotCoulombpotential(ensemble, xmin, xmax, ptCount=200):
-    x = np.linspace(xmin,xmax,ptCount)
-    y = []
-    numerator = ensemble.qi * ensemble.qj
-    denominator = 4. * math.pi # assume e0=e1=1 for simplicity
-    for xVal in x:
-        Ec = numerator / (denominator * xVal)
-        Ec = Ec * 100 # scale to make more like LJ value
-        y.append(Ec)
-    df = pd.DataFrame()
-    df['distance'] = x
-    df['Coulomb potential energy'] = y
-    df.plot(x = 'distance', y = 'Coulomb potential energy', title = 'Coulomb potential', ylabel = 'Coulomb potential energy')
-    plt.show()
-
-def plot2LJpotentials(ensemble1, ensemble2, xmin, xmax, ymax, ptCount=200):
-    # find lowest epsilon, use to set ymin
-    ymin = ensemble1.epsilon
-    if (ensemble2.epsilon > ensemble1.epsilon):
-      ymin = ensemble2.epsilon
-    ymin = 0-ymin-0.2
-    #print(ymin)
-    # first handle ensemble 1
-    #xlowerlim1 = ensemble1.sigma - 0.05
-    #x1 = np.linspace(xlowerlim1, ensemble1.cutoff, ptCount)
-    x1 = np.linspace(xmin, xmax, ptCount)
-    y1 = []
-    for xVal in x1:
-        sigOverR6 = np.power(ensemble1.sigma/xVal, 6)
-        sigOverR12 = sigOverR6*sigOverR6        
-        y1.append( 4 * ensemble1.epsilon * (sigOverR12 - sigOverR6))
-    df1 = pd.DataFrame()
-    df1['distance'] = x1
-    df1['LJ1'] = y1
-    # then handle ensemble 2
-    #xlowerlim2 = ensemble2.sigma - 0.05
-    #x2 = np.linspace(xlowerlim2, ensemble2.cutoff, ptCount)
-    x2 = np.linspace(xmin, xmax, ptCount)
-    y2 = []
-    for xVal in x2:
-        sigOverR6 = np.power(ensemble2.sigma/xVal, 6)
-        sigOverR12 = sigOverR6*sigOverR6        
-        y2.append( 4 * ensemble2.epsilon * (sigOverR12 - sigOverR6))
-    df2 = pd.DataFrame()
-    df2['distance'] = x2
-    df2['LJ2'] = y2
-    # now combine them
-    df = pd.concat([df1.LJ1, df2.LJ2], axis=1)
-    dfForPlot = pd.concat([df1.distance, df], axis=1)
-    dfForPlot.columns = ['distance','LJ1','LJ2']
-    dfForPlot.plot(x='distance', y=['LJ1','LJ2'], title='Lennard-Jones potentials', ylabel = 'potential energy')
-    plt.ylim(ymin,ymax)
-    plt.show()
-
-def plotLJCoulomb(ensemble, xmin, xmax, ptCount=200):
-    x = np.linspace(xmin, xmax, ptCount)
-    y1 = []
-    y2 = []
-    # first calculate LJ
-    for xVal in x:
-        sigOverR6 = np.power(ensemble.sigma/xVal, 6)
-        sigOverR12 = sigOverR6*sigOverR6
-        y1.append(4 * ensemble.epsilon * (sigOverR12 - sigOverR6))
-    df1 = pd.DataFrame()
-    df1['distance'] = x
-    df1['LJ'] = y1
-    # now calculate Coulomb
-    numerator = ensemble.qi * ensemble.qj
-    denominator = 4. * math.pi # assume e0=e1=1 for simplicity
-    for xVal in x:
-        Ec = numerator / (denominator * xVal)
-        Ec = Ec * np.power(10.,2) # adjust cos otherwise Coulomb is tiny cf LJ
-        y2.append(Ec)
-    df2 = pd.DataFrame()
-    df2['distance'] = x
-    df2['Coulomb'] = y2
-    # now combine them
-    df = pd.concat([df1.LJ, df2.Coulomb], axis=1)
-    dfForPlot = pd.concat([df1.distance, df, df.sum(axis=1)], axis=1)
-    dfForPlot.columns = ['distance', 'LJ', 'Coulomb', 'LJ+Coulomb']
-    dfForPlot.plot(x='distance', y=['LJ','Coulomb','LJ+Coulomb'], ylabel = 'potential energy')
-    plt.show()
-        
-
+    df['PE'] = y
+    df.plot(x = 'distance', y = 'PE')
+    
 def writeXYZ(ensemble, filename, atomName='Ar'):
     f = open(filename, 'w')
     molNum = str(ensemble.nMol) 
