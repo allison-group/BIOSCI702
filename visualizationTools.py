@@ -11,7 +11,8 @@ import matplotlib.pyplot as plt
 import pandas as pd 
 import numpy as np
 from matplotlib.animation import FuncAnimation, PillowWriter
-    
+import math as math
+
 def makeTrajMovie2D(traj, sideLen, filename = 'LJtraj.gif'):
     fig = plt.figure(figsize=(5,5))
     plt.xlim(0 - .5, sideLen+.5)
