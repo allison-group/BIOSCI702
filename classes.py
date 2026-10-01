@@ -19,7 +19,7 @@ class Mol():
         self.m = m   # mass
 
 class Ensemble():
-    def __init__(self, sideLen=10, dim=3, buffer=.75, nMol=64, temperature=1, sigma=1., qi = 0., qj = 0., epsilon=1., mass=1.0, cutFactor=3, periodic=True, useLJ=True):
+    def __init__(self, sideLen=10, dim=3, buffer=.75, nMol=64, temperature=1, sigma=1., qi=0., qj=0., epsilon=1., mass=1.0, cutFactor=3, periodic=True, useLJ=True):
         self.bounds = [(0,sideLen) for i in range(dim)] # boundaries of the container
         self.temperature = temperature
         self.sideLen = sideLen   # length of side of container 

@@ -16,7 +16,7 @@ startTime = time.time()
 
 T_init = 1.0 # initial temperature 
 
-molecules = Ensemble(nMol = 64, sideLen=5, dim=3, sigma=1.0, epsilon=1.0, buffer=.75, periodic=True, useLJ=True, temperature=T_init)              
+molecules = Ensemble(nMol = 64, sideLen=5, dim=3, sigma=1.0, epsilon=1.0, qi=0., qj=0., buffer=.75, periodic=True, useLJ=True, temperature=T_init)              
 vis.plotLJpotential(molecules)
             
 trajectory = RunDynamics(molecules, nSteps=1000, saveFreq=3)
